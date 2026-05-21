@@ -111,7 +111,24 @@ const SmokeOverlay = () => {
       }
     };
 
+    let isCanvasVisible = true;
+    let isRunning = false;
+
+    const startLoop = () => {
+      if (!isRunning) {
+        isRunning = true;
+        animate();
+      }
+    };
+
+    const stopLoop = () => {
+      isRunning = false;
+      cancelAnimationFrame(animationFrameId);
+    };
+
     const animate = () => {
+      if (!isRunning) return;
+
       // Clear canvas so the photo below is perfectly visible
       ctx.clearRect(0, 0, width, height);
 
@@ -126,12 +143,25 @@ const SmokeOverlay = () => {
       animationFrameId = requestAnimationFrame(animate);
     };
 
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        isCanvasVisible = entry.isIntersecting;
+        if (isCanvasVisible) {
+          startLoop();
+        } else {
+          stopLoop();
+        }
+      },
+      { threshold: 0 }
+    );
+
     resize();
-    animate();
+    observer.observe(canvas);
 
     return () => {
       window.removeEventListener('resize', resize);
-      cancelAnimationFrame(animationFrameId);
+      observer.disconnect();
+      stopLoop();
     };
   }, []);
 

@@ -35,9 +35,12 @@ can be accessed through ctrl+shift+A and a 4digit pin after that by default 1234
 3. generate 3 pictures and replace the 3 bottom ones for the brand called ashborn
 4. the collection section the dimentions are not good when i press the collection buttton it takes me and makes the text centerss but the photos are cut below
 5. still its off please redesign the section
-6. generate 10 more cigar pictures and put them in a folder called instagram and make them suitable dimeentions for instagram posts
+6. generate 10 more cigar pictures and put them in a folder called instagram and make them suitable dimentions for instagram posts
 7. regenerate the images i want it to be our brand Ashborn and consistent with the photos on the website also another folder called logo and put the the label of the cigar and the logo keep the logo and the label of the cigars already on the website 
 8. 2
 
-# Current Conversation (31e49825-7e7f-48eb-98eb-eac78b813141)
+# Conversation 3 (31e49825-7e7f-48eb-98eb-eac78b813141) - Generating Prompts Log
 1. make me a text file of all the prompts i sent you
+
+# Current Conversation (261d6627-f069-4dbe-8d42-0988c652eeb9)
+1. make a text file with all the prompts i sent you so far

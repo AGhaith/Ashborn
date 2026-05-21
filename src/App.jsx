@@ -1,5 +1,7 @@
 import { useEffect, useState, useRef } from 'react';
 import './index.css';
+import HeroCanvas from './components/HeroCanvas';
+import SmokeOverlay from './components/SmokeOverlay';
 
 const DEFAULT_CONTENT = {
   heroEyebrow: "Established 1928",
@@ -78,10 +80,21 @@ function App() {
 
   const [adminTab, setAdminTab] = useState('home_editor'); // 'home_editor', 'alloc_editor', 'registry'
   const [view, setView] = useState('home'); // 'home' or 'allocation'
+  const [fadeState, setFadeState] = useState('fade-in');
   const [requests, setRequests] = useState(() => {
     const saved = localStorage.getItem('ashborn_requests');
     return saved ? JSON.parse(saved) : [];
   });
+
+  const navigateToView = (newView) => {
+    if (newView === view) return;
+    setFadeState('fade-out');
+    setTimeout(() => {
+      setView(newView);
+      window.scrollTo(0, 0);
+      setFadeState('fade-in');
+    }, 500);
+  };
 
   // Allocation Form State
   const [fullName, setFullName] = useState('');
@@ -363,7 +376,24 @@ function App() {
 
   const hoverProps = (key) => ({
     onMouseEnter: () => handleElementHover(key),
-    onMouseLeave: handleElementLeave
+    onMouseLeave: handleElementLeave,
+    onClick: () => {
+      if (!isAdmin) return;
+      const inputEl = document.getElementById(`input-${key}`);
+      if (inputEl) {
+        if (inputEl.tagName === 'INPUT' || inputEl.tagName === 'TEXTAREA') {
+          inputEl.focus();
+          inputEl.select?.();
+        } else {
+          const fileInput = inputEl.querySelector('input[type="file"]');
+          if (fileInput) {
+            fileInput.click();
+          } else {
+            inputEl.focus();
+          }
+        }
+      }
+    }
   });
 
   return (
@@ -392,40 +422,44 @@ function App() {
         </div>
       )}
 
-      {isAdmin && (
-        <div className="admin-sidebar">
-          <div className="admin-header">
-            <h3>Site Admin</h3>
-            <button onClick={() => { setIsAdmin(false); setActiveField(null); }}>Close</button>
-          </div>
-          <div className="admin-tabs">
-            <button 
-              className={adminTab === 'home_editor' ? 'active' : ''} 
-              onClick={() => { setAdminTab('home_editor'); setView('home'); }}
-            >
-              Home Page
-            </button>
-            <button 
-              className={adminTab === 'alloc_editor' ? 'active' : ''} 
-              onClick={() => { setAdminTab('alloc_editor'); setView('allocation'); }}
-            >
-              Allocation Page
-            </button>
-            <button 
-              className={adminTab === 'registry' ? 'active' : ''} 
-              onClick={() => setAdminTab('registry')}
-            >
-              Requests ({requests.length})
-            </button>
-          </div>
+      <div className={`admin-sidebar ${isAdmin ? 'open' : ''}`}>
+        <div className="admin-header">
+          <h3>Site Admin</h3>
+          <button onClick={() => { setIsAdmin(false); setActiveField(null); }}>Close</button>
+        </div>
+        <div className="admin-tabs">
+          <button 
+            className={adminTab === 'home_editor' ? 'active' : ''} 
+            onClick={() => { setAdminTab('home_editor'); setView('home'); }}
+          >
+            Home
+          </button>
+          <button 
+            className={adminTab === 'alloc_editor' ? 'active' : ''} 
+            onClick={() => { setAdminTab('alloc_editor'); setView('allocation'); }}
+          >
+            Allocation
+          </button>
+          <button 
+            className={adminTab === 'registry' ? 'active' : ''} 
+            onClick={() => setAdminTab('registry')}
+          >
+            Requests ({requests.length})
+          </button>
+        </div>
 
-          {adminTab === 'home_editor' && (
-            <div className="admin-fields">
+        {adminTab === 'home_editor' && (
+          <div className="admin-fields">
+            <div className="admin-field-group">
               <h4>Hero Section</h4>
-              <label>Subtitle</label>
-              <input type="text" value={content.heroEyebrow} {...inputProps('heroEyebrow')} />
-              <label>Title</label>
-              <textarea value={content.heroTitle} {...inputProps('heroTitle')} />
+              <div className="admin-field-item">
+                <label>Subtitle</label>
+                <input type="text" value={content.heroEyebrow} {...inputProps('heroEyebrow')} />
+              </div>
+              <div className="admin-field-item">
+                <label>Title</label>
+                <textarea value={content.heroTitle} {...inputProps('heroTitle')} />
+              </div>
               <ImageUploadField 
                 id="input-heroImage"
                 label="Hero Image" 
@@ -436,28 +470,50 @@ function App() {
                 onBlur={handleBlur}
                 onChange={(e) => handleImageUpload('heroImage', e.target.files[0])}
               />
+            </div>
 
+            <div className="admin-field-group">
               <h4>Philosophy Section</h4>
-              <label>Subtitle</label>
-              <input type="text" value={content.philEyebrow} {...inputProps('philEyebrow')} />
-              <label>Title</label>
-              <textarea value={content.philTitle} {...inputProps('philTitle')} />
-              <label>Paragraph 1</label>
-              <textarea value={content.philText1} {...inputProps('philText1')} />
-              <label>Paragraph 2</label>
-              <textarea value={content.philText2} {...inputProps('philText2')} />
+              <div className="admin-field-item">
+                <label>Subtitle</label>
+                <input type="text" value={content.philEyebrow} {...inputProps('philEyebrow')} />
+              </div>
+              <div className="admin-field-item">
+                <label>Title</label>
+                <textarea value={content.philTitle} {...inputProps('philTitle')} />
+              </div>
+              <div className="admin-field-item">
+                <label>Paragraph 1</label>
+                <textarea value={content.philText1} {...inputProps('philText1')} />
+              </div>
+              <div className="admin-field-item">
+                <label>Paragraph 2</label>
+                <textarea value={content.philText2} {...inputProps('philText2')} />
+              </div>
+            </div>
 
+            <div className="admin-field-group">
               <h4>Collection Hero</h4>
-              <label>Subtitle</label>
-              <input type="text" value={content.collEyebrow} {...inputProps('collEyebrow')} />
-              <label>Title</label>
-              <input type="text" value={content.collTitle} {...inputProps('collTitle')} />
+              <div className="admin-field-item">
+                <label>Subtitle</label>
+                <input type="text" value={content.collEyebrow} {...inputProps('collEyebrow')} />
+              </div>
+              <div className="admin-field-item">
+                <label>Title</label>
+                <input type="text" value={content.collTitle} {...inputProps('collTitle')} />
+              </div>
+            </div>
 
+            <div className="admin-field-group">
               <h4>Cigar 1 ({content.cigar1Name || 'No. 1 Classic'})</h4>
-              <label>Name</label>
-              <input type="text" value={content.cigar1Name} {...inputProps('cigar1Name')} />
-              <label>Description</label>
-              <input type="text" value={content.cigar1Desc} {...inputProps('cigar1Desc')} />
+              <div className="admin-field-item">
+                <label>Name</label>
+                <input type="text" value={content.cigar1Name} {...inputProps('cigar1Name')} />
+              </div>
+              <div className="admin-field-item">
+                <label>Description</label>
+                <input type="text" value={content.cigar1Desc} {...inputProps('cigar1Desc')} />
+              </div>
               <ImageUploadField 
                 id="input-cigar1Image"
                 label="Product Image" 
@@ -468,12 +524,18 @@ function App() {
                 onBlur={handleBlur}
                 onChange={(e) => handleImageUpload('cigar1Image', e.target.files[0])}
               />
+            </div>
 
+            <div className="admin-field-group">
               <h4>Cigar 2 ({content.cigar2Name || 'No. 2 Reserve'})</h4>
-              <label>Name</label>
-              <input type="text" value={content.cigar2Name} {...inputProps('cigar2Name')} />
-              <label>Description</label>
-              <input type="text" value={content.cigar2Desc} {...inputProps('cigar2Desc')} />
+              <div className="admin-field-item">
+                <label>Name</label>
+                <input type="text" value={content.cigar2Name} {...inputProps('cigar2Name')} />
+              </div>
+              <div className="admin-field-item">
+                <label>Description</label>
+                <input type="text" value={content.cigar2Desc} {...inputProps('cigar2Desc')} />
+              </div>
               <ImageUploadField 
                 id="input-cigar2Image"
                 label="Product Image" 
@@ -484,12 +546,18 @@ function App() {
                 onBlur={handleBlur}
                 onChange={(e) => handleImageUpload('cigar2Image', e.target.files[0])}
               />
+            </div>
 
+            <div className="admin-field-group">
               <h4>Cigar 3 ({content.cigar3Name || 'No. 3 Signature'})</h4>
-              <label>Name</label>
-              <input type="text" value={content.cigar3Name} {...inputProps('cigar3Name')} />
-              <label>Description</label>
-              <input type="text" value={content.cigar3Desc} {...inputProps('cigar3Desc')} />
+              <div className="admin-field-item">
+                <label>Name</label>
+                <input type="text" value={content.cigar3Name} {...inputProps('cigar3Name')} />
+              </div>
+              <div className="admin-field-item">
+                <label>Description</label>
+                <input type="text" value={content.cigar3Desc} {...inputProps('cigar3Desc')} />
+              </div>
               <ImageUploadField 
                 id="input-cigar3Image"
                 label="Product Image" 
@@ -501,90 +569,116 @@ function App() {
                 onChange={(e) => handleImageUpload('cigar3Image', e.target.files[0])}
               />
             </div>
-          )}
+          </div>
+        )}
 
-          {adminTab === 'alloc_editor' && (
-            <div className="admin-fields">
+        {adminTab === 'alloc_editor' && (
+          <div className="admin-fields">
+            <div className="admin-field-group">
               <h4>Allocation Page General</h4>
-              <label>Subtitle</label>
-              <input type="text" value={content.allocEyebrow} {...inputProps('allocEyebrow')} />
-              <label>Title</label>
-              <input type="text" value={content.allocTitle} {...inputProps('allocTitle')} />
-              <label>Introduction</label>
-              <textarea value={content.allocIntro} {...inputProps('allocIntro')} />
-
-              <h4>Cigar 1 Allocation Details ({content.cigar1Name || 'No. 1 Classic'})</h4>
-              <label>Allocation Status</label>
-              <input type="text" value={content.cigar1Availability} {...inputProps('cigar1Availability')} />
-              <label>Allocation Description</label>
-              <textarea value={content.cigar1AllocDesc} {...inputProps('cigar1AllocDesc')} />
-
-              <h4>Cigar 2 Allocation Details ({content.cigar2Name || 'No. 2 Reserve'})</h4>
-              <label>Allocation Status</label>
-              <input type="text" value={content.cigar2Availability} {...inputProps('cigar2Availability')} />
-              <label>Allocation Description</label>
-              <textarea value={content.cigar2AllocDesc} {...inputProps('cigar2AllocDesc')} />
-
-              <h4>Cigar 3 Allocation Details ({content.cigar3Name || 'No. 3 Signature'})</h4>
-              <label>Allocation Status</label>
-              <input type="text" value={content.cigar3Availability} {...inputProps('cigar3Availability')} />
-              <label>Allocation Description</label>
-              <textarea value={content.cigar3AllocDesc} {...inputProps('cigar3AllocDesc')} />
-            </div>
-          )}
-
-          {adminTab === 'registry' && (
-            <div className="admin-requests-list">
-              <div className="admin-requests-header">
-                <h4>Registry Queue</h4>
-                {requests.length > 0 && (
-                  <button className="clear-all-btn" onClick={handleClearAllRequests}>Clear All</button>
-                )}
+              <div className="admin-field-item">
+                <label>Subtitle</label>
+                <input type="text" value={content.allocEyebrow} {...inputProps('allocEyebrow')} />
               </div>
-              
-              {requests.length === 0 ? (
-                <p className="no-requests-msg">No allocation requests registered yet.</p>
-              ) : (
-                <div className="requests-container">
-                  {requests.map((req) => (
-                    <div key={req.id} className="admin-request-card">
-                      <div className="request-card-header">
-                        <h5>{req.fullName}</h5>
-                        <button className="delete-request-btn" onClick={() => handleDeleteRequest(req.id)}>×</button>
-                      </div>
-                      <p className="request-email">{req.email}</p>
-                      <div className="request-details">
-                        <span><strong>Blend:</strong> {req.selectedBlend}</span>
-                        <span><strong>Qty:</strong> {req.quantity}</span>
-                        <span><strong>Tier:</strong> {req.tier}</span>
-                      </div>
-                      {req.intent && (
-                        <p className="request-intent">
-                          <strong>Note:</strong> "{req.intent}"
-                        </p>
-                      )}
-                      <span className="request-time">{req.timestamp}</span>
-                    </div>
-                  ))}
-                </div>
+              <div className="admin-field-item">
+                <label>Title</label>
+                <input type="text" value={content.allocTitle} {...inputProps('allocTitle')} />
+              </div>
+              <div className="admin-field-item">
+                <label>Introduction</label>
+                <textarea value={content.allocIntro} {...inputProps('allocIntro')} />
+              </div>
+            </div>
+
+            <div className="admin-field-group">
+              <h4>Cigar 1 Allocation ({content.cigar1Name || 'No. 1 Classic'})</h4>
+              <div className="admin-field-item">
+                <label>Allocation Status</label>
+                <input type="text" value={content.cigar1Availability} {...inputProps('cigar1Availability')} />
+              </div>
+              <div className="admin-field-item">
+                <label>Allocation Description</label>
+                <textarea value={content.cigar1AllocDesc} {...inputProps('cigar1AllocDesc')} />
+              </div>
+            </div>
+
+            <div className="admin-field-group">
+              <h4>Cigar 2 Allocation ({content.cigar2Name || 'No. 2 Reserve'})</h4>
+              <div className="admin-field-item">
+                <label>Allocation Status</label>
+                <input type="text" value={content.cigar2Availability} {...inputProps('cigar2Availability')} />
+              </div>
+              <div className="admin-field-item">
+                <label>Allocation Description</label>
+                <textarea value={content.cigar2AllocDesc} {...inputProps('cigar2AllocDesc')} />
+              </div>
+            </div>
+
+            <div className="admin-field-group">
+              <h4>Cigar 3 Allocation ({content.cigar3Name || 'No. 3 Signature'})</h4>
+              <div className="admin-field-item">
+                <label>Allocation Status</label>
+                <input type="text" value={content.cigar3Availability} {...inputProps('cigar3Availability')} />
+              </div>
+              <div className="admin-field-item">
+                <label>Allocation Description</label>
+                <textarea value={content.cigar3AllocDesc} {...inputProps('cigar3AllocDesc')} />
+              </div>
+            </div>
+          </div>
+        )}
+
+        {adminTab === 'registry' && (
+          <div className="admin-requests-list">
+            <div className="admin-requests-header">
+              <h4>Registry Queue</h4>
+              {requests.length > 0 && (
+                <button className="clear-all-btn" onClick={handleClearAllRequests}>Clear All</button>
               )}
             </div>
-          )}
-        </div>
-      )}
+            
+            {requests.length === 0 ? (
+              <p className="no-requests-msg">No allocation requests registered yet.</p>
+            ) : (
+              <div className="requests-container">
+                {requests.map((req) => (
+                  <div key={req.id} className={`admin-request-card tier-${req.tier.toLowerCase()}`}>
+                    <div className="request-card-header">
+                      <h5>{req.fullName}</h5>
+                      <button className="delete-request-btn" onClick={() => handleDeleteRequest(req.id)}>×</button>
+                    </div>
+                    <p className="request-email">{req.email}</p>
+                    <div className="request-details">
+                      <span><strong>Blend:</strong> {req.selectedBlend}</span>
+                      <span><strong>Qty:</strong> {req.quantity} box{req.quantity > 1 ? 'es' : ''}</span>
+                      <span className={`request-tier-badge tier-${req.tier.toLowerCase()}`}>{req.tier}</span>
+                    </div>
+                    {req.intent && (
+                      <p className="request-intent">
+                        <strong>Note:</strong> "{req.intent}"
+                      </p>
+                    )}
+                    <span className="request-time">{req.timestamp}</span>
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
+        )}
+      </div>
 
       <div className={`main-content ${isAdmin ? 'admin-active' : ''}`}>
         <nav className={`navbar ${scrolled ? 'scrolled' : ''}`}>
-          <div className="logo" onClick={() => { setView('home'); resetAllocationForm(); window.scrollTo(0, 0); }} style={{ cursor: 'pointer' }}>ASHBORN</div>
+          <div className="logo" onClick={() => { navigateToView('home'); resetAllocationForm(); }} style={{ cursor: 'pointer' }}>ASHBORN</div>
           <ul className="nav-links">
             {view === 'home' ? (
               <>
                 <li><a href="#philosophy" onClick={(e) => scrollToSection(e, 'philosophy')}>Heritage</a></li>
                 <li><a href="#collection" onClick={(e) => scrollToSection(e, 'collection')}>Collection</a></li>
-                <li><a href="#" onClick={(e) => { e.preventDefault(); setView('allocation'); window.scrollTo(0, 0); }} className="nav-alloc-btn">Request Allocation</a></li>
+                <li><a href="#" onClick={(e) => { e.preventDefault(); navigateToView('allocation'); }} className="nav-alloc-btn">Request Allocation</a></li>
               </>
             ) : (
-              <li><a href="#" onClick={(e) => { e.preventDefault(); setView('home'); resetAllocationForm(); window.scrollTo(0, 0); }}>← Back to Heritage</a></li>
+              <li><a href="#" onClick={(e) => { e.preventDefault(); navigateToView('home'); resetAllocationForm(); }}>← Back to Heritage</a></li>
             )}
             <li>
               <a href="https://www.instagram.com/ashborntobacco/" target="_blank" rel="noopener noreferrer" aria-label="Instagram" className="nav-instagram">
@@ -598,7 +692,7 @@ function App() {
           </ul>
           <div style={{ display: 'flex', alignItems: 'center', gap: '1.5rem' }}>
             {view === 'allocation' && (
-              <a href="#" onClick={(e) => { e.preventDefault(); setView('home'); resetAllocationForm(); window.scrollTo(0, 0); }} className="mobile-back-link">Back</a>
+              <a href="#" onClick={(e) => { e.preventDefault(); navigateToView('home'); resetAllocationForm(); }} className="mobile-back-link">Back</a>
             )}
             <a href="https://www.instagram.com/ashborntobacco/" target="_blank" rel="noopener noreferrer" aria-label="Instagram" className="mobile-nav-instagram">
               <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
@@ -610,9 +704,12 @@ function App() {
           </div>
         </nav>
 
-        {view === 'home' ? (
+        <div className={`view-transition-container ${fadeState}`}>
+          {view === 'home' ? (
           <>
             <header className="hero" id="home">
+              <HeroCanvas />
+              <SmokeOverlay />
               <div className="hero-editorial-layout">
                 <div className="hero-text-content">
                   <span id="field-heroEyebrow" className={`eyebrow hero-anim-1 ${activeField === 'heroEyebrow' ? 'edit-highlight' : ''}`} {...hoverProps('heroEyebrow')}>{content.heroEyebrow}</span>
@@ -620,7 +717,7 @@ function App() {
                   <div className="hero-divider hero-anim-3"></div>
                   <p className="hero-subtext hero-anim-4">A dedication to time-honored tradition and absolute mastery. Discover the Ashborn collection.</p>
                   <div className="hero-actions hero-anim-4" style={{ marginTop: '2.5rem' }}>
-                    <button onClick={() => setView('allocation')} className="btn-premium">Request Allocation</button>
+                    <button onClick={() => navigateToView('allocation')} className="btn-premium">Request Allocation</button>
                   </div>
                 </div>
                 <div className="hero-image-wrapper hero-anim-img">
@@ -658,7 +755,7 @@ function App() {
                     </div>
                     <h3 id="field-cigar1Name" className={activeField === 'cigar1Name' ? 'edit-highlight' : ''} {...hoverProps('cigar1Name')}>{content.cigar1Name}</h3>
                     <p id="field-cigar1Desc" className={activeField === 'cigar1Desc' ? 'edit-highlight' : ''} {...hoverProps('cigar1Desc')}>{content.cigar1Desc}</p>
-                    <button onClick={() => { setSelectedBlend(content.cigar1Name || 'No. 1 Classic'); setView('allocation'); window.scrollTo(0, 0); }} className="product-action-btn">Apply for Allocation</button>
+                    <button onClick={() => { setSelectedBlend(content.cigar1Name || 'No. 1 Classic'); navigateToView('allocation'); }} className="product-action-btn">Apply for Allocation</button>
                   </div>
                   
                   <div className="product-card reveal" style={{transitionDelay: '0.2s'}}>
@@ -667,16 +764,16 @@ function App() {
                     </div>
                     <h3 id="field-cigar2Name" className={activeField === 'cigar2Name' ? 'edit-highlight' : ''} {...hoverProps('cigar2Name')}>{content.cigar2Name}</h3>
                     <p id="field-cigar2Desc" className={activeField === 'cigar2Desc' ? 'edit-highlight' : ''} {...hoverProps('cigar2Desc')}>{content.cigar2Desc}</p>
-                    <button onClick={() => { setSelectedBlend(content.cigar2Name || 'No. 2 Reserve'); setView('allocation'); window.scrollTo(0, 0); }} className="product-action-btn">Apply for Allocation</button>
+                    <button onClick={() => { setSelectedBlend(content.cigar2Name || 'No. 2 Reserve'); navigateToView('allocation'); }} className="product-action-btn">Apply for Allocation</button>
                   </div>
-
+                  
                   <div className="product-card reveal" style={{transitionDelay: '0.4s'}}>
                     <div className="image-container" {...hoverProps('cigar3Image')}>
                       <img id="field-cigar3Image" src={content.cigar3Image} alt={content.cigar3Name} className={`product-image ${activeField === 'cigar3Image' ? 'edit-highlight' : ''}`} />
                     </div>
                     <h3 id="field-cigar3Name" className={activeField === 'cigar3Name' ? 'edit-highlight' : ''} {...hoverProps('cigar3Name')}>{content.cigar3Name}</h3>
                     <p id="field-cigar3Desc" className={activeField === 'cigar3Desc' ? 'edit-highlight' : ''} {...hoverProps('cigar3Desc')}>{content.cigar3Desc}</p>
-                    <button onClick={() => { setSelectedBlend(content.cigar3Name || 'No. 3 Signature'); setView('allocation'); window.scrollTo(0, 0); }} className="product-action-btn">Apply for Allocation</button>
+                    <button onClick={() => { setSelectedBlend(content.cigar3Name || 'No. 3 Signature'); navigateToView('allocation'); }} className="product-action-btn">Apply for Allocation</button>
                   </div>
                 </div>
               </div>
@@ -704,7 +801,7 @@ function App() {
                   <p className="success-note">
                     Applications are reviewed on a rolling basis. An email invitation containing access credentials will be sent to <strong>{email}</strong> should your request be approved by our curators.
                   </p>
-                  <button type="button" className="btn-premium" onClick={() => { setView('home'); resetAllocationForm(); }}>
+                  <button type="button" className="btn-premium" onClick={() => { navigateToView('home'); resetAllocationForm(); }}>
                     Return to Experience
                   </button>
                 </div>
@@ -842,6 +939,7 @@ function App() {
             <div className="footer-legal">&copy; 2026 Ashborn. All rights reserved.</div>
           </div>
         </footer>
+        </div>
       </div>
     </>
   );

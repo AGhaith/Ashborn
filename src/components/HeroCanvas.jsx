@@ -153,11 +153,28 @@ const HeroCanvas = () => {
       }
     };
 
+    let isCanvasVisible = true;
+    let isRunning = false;
+
+    const startLoop = () => {
+      if (!isRunning) {
+        isRunning = true;
+        animate();
+      }
+    };
+
+    const stopLoop = () => {
+      isRunning = false;
+      cancelAnimationFrame(animationFrameId);
+    };
+
     const animate = () => {
-      // Clear background perfectly black
+      if (!isRunning) return;
+
+      // Clear background with matching premium charcoal-olive color (#0C0D0A)
       ctx.globalCompositeOperation = 'source-over';
       ctx.globalAlpha = 1;
-      ctx.fillStyle = '#000000';
+      ctx.fillStyle = '#0C0D0A';
       ctx.fillRect(0, 0, width, height);
       
       // Sort particles by Z so background draws first
@@ -171,14 +188,27 @@ const HeroCanvas = () => {
       animationFrameId = requestAnimationFrame(animate);
     };
 
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        isCanvasVisible = entry.isIntersecting;
+        if (isCanvasVisible) {
+          startLoop();
+        } else {
+          stopLoop();
+        }
+      },
+      { threshold: 0 }
+    );
+
     resize();
-    animate();
+    observer.observe(canvas);
 
     return () => {
       window.removeEventListener('resize', resize);
       window.removeEventListener('mousemove', handleMouseMove);
       window.removeEventListener('mouseout', handleMouseLeave);
-      cancelAnimationFrame(animationFrameId);
+      observer.disconnect();
+      stopLoop();
     };
   }, []);
 
