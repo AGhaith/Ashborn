@@ -1,0 +1,43 @@
+# Conversation 1 (553c4f71-df48-4c14-9efd-c32a065d0c84) - Premium Ashborn Cigar Website
+1. i want a webpage for a cigar company called ashborn very very premium and minimalistic design focus on colors that give neutral look like wood white and grey and black with very minimalistic fonts
+2. oaky
+3. use react
+4. change the font to something that is more premium
+5. no try another font and use more tobacco leaf and forest vibe for the page
+6. great.
+
+i want animation in the background for example a tobacco leave that moves with my mouse and looks very realisitic
+7. it feels cheap i want the website to feel very premiun
+8. i want an admin overlay that allows me to edit the photos and edit the text 
+
+can be accessed through ctrl+shift+A and a 4digit pin after that by default 1234
+9. make the website feel smoother by adding animations i dont want anything to feel choppy
+10. make the admin pin 4 seperate one digit boxes and make a smooth animation when pressing the shortcut 
+11. i want the admin panel text boxes to feel more premium and when i am editing something i want it to highlight and take me to the part i am editing.
+12. make the scroll bars black and make them feel premium
+13. i want option to upload an image to replace one
+14. make the upload alot more premium and say the recommended dimentions of the photo
+15. when i click any of the bittons in the top panel it takes me straight to the section with no animation i want it to feel silky smooth
+16. the hero image i want it to be a 2d animation something slick and minimal preferable something to do with tobacco leaves or trees i want something very high quality and eye catching and interactive with the mouse
+17. i want something very realisitic
+18. the animation feels very bad make the photo animated and no interaction with the mouse
+19. THERE IS NOTHING
+20. the hero is a photo
+21. i want the hero to be an animation
+22. the hero secition feels very poor and not premium at all improvise
+23. change the photo and make a silky clean animation when the website is loadedd
+24. okay now totally new hero section i want clean tree crean and white implemented in the page
+25. go through the whole website again and fix the animations and everything
+
+# Conversation 2 (af1b07be-aa04-4010-b5ad-dccd4edc9601) - Refining Collection Image Styling
+1. make the three photos at the buttom fill the theme
+2. generate 3 pictures and replace the 3 bottom ones for the brand called ashbord
+3. generate 3 pictures and replace the 3 bottom ones for the brand called ashborn
+4. the collection section the dimentions are not good when i press the collection buttton it takes me and makes the text centerss but the photos are cut below
+5. still its off please redesign the section
+6. generate 10 more cigar pictures and put them in a folder called instagram and make them suitable dimeentions for instagram posts
+7. regenerate the images i want it to be our brand Ashborn and consistent with the photos on the website also another folder called logo and put the the label of the cigar and the logo keep the logo and the label of the cigars already on the website 
+8. 2
+
+# Current Conversation (31e49825-7e7f-48eb-98eb-eac78b813141)
+1. make me a text file of all the prompts i sent you
