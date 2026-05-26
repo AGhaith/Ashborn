@@ -2,6 +2,9 @@ import { useEffect, useState, useRef } from 'react';
 import './index.css';
 import HeroCanvas from './components/HeroCanvas';
 import SmokeOverlay from './components/SmokeOverlay';
+import { getVideoBlob, saveVideoBlob, deleteVideoBlob } from './utils/db';
+
+const DEFAULT_VIDEO_URL = "https://storage.googleapis.com/gtv-videos-bucket/sample/ForBiggerEscapes.mp4";
 
 const DEFAULT_CONTENT = {
   heroEyebrow: "Established 1928",
@@ -11,6 +14,8 @@ const DEFAULT_CONTENT = {
   philTitle: "Silence.\nTime.\nMastery.",
   philText1: "True luxury cannot be rushed. It is cultivated in darkness, refined by generations of hands, and revealed only to those who understand the value of patience.",
   philText2: "Every Ashborn creation is an uncompromising testament to the art of the smoke.",
+  videoEyebrow: "The Cinematic Experience",
+  videoTitle: "A Symphony of\nSmoke and Time",
   collEyebrow: "The Collection",
   collTitle: "Curated Masterpieces",
   cigar1Name: "No. 1 Classic",
@@ -85,6 +90,30 @@ function App() {
     const saved = localStorage.getItem('ashborn_requests');
     return saved ? JSON.parse(saved) : [];
   });
+
+  const [videoUrl, setVideoUrl] = useState(null);
+  const [isPlaying, setIsPlaying] = useState(true);
+  const [isMuted, setIsMuted] = useState(true);
+  const videoRef = useRef(null);
+
+  // Load custom video from IndexedDB on mount
+  useEffect(() => {
+    let activeUrl = null;
+    getVideoBlob().then(blob => {
+      if (blob) {
+        activeUrl = URL.createObjectURL(blob);
+        setVideoUrl(activeUrl);
+      }
+    }).catch(err => {
+      console.error("Failed to load video from IndexedDB", err);
+    });
+
+    return () => {
+      if (activeUrl) {
+        URL.revokeObjectURL(activeUrl);
+      }
+    };
+  }, []);
 
   const navigateToView = (newView) => {
     if (newView === view) return;
@@ -268,6 +297,69 @@ function App() {
       img.src = e.target.result;
     };
     reader.readAsDataURL(file);
+  };
+
+  const handleVideoUpload = async (e) => {
+    const file = e.target.files[0];
+    if (!file) return;
+
+    if (!file.type.startsWith('video/')) {
+      alert("Please upload a valid video file.");
+      return;
+    }
+
+    try {
+      await saveVideoBlob(file);
+      
+      if (videoUrl) {
+        URL.revokeObjectURL(videoUrl);
+      }
+      
+      const newUrl = URL.createObjectURL(file);
+      setVideoUrl(newUrl);
+      setIsPlaying(true);
+      setIsMuted(true);
+      
+      alert("Video uploaded and saved successfully!");
+    } catch (err) {
+      console.error(err);
+      alert("Failed to save video to browser database. Try a smaller file.");
+    }
+  };
+
+  const handleRemoveVideo = async () => {
+    if (window.confirm("Are you sure you want to revert to the default cinematic video?")) {
+      try {
+        await deleteVideoBlob();
+        if (videoUrl) {
+          URL.revokeObjectURL(videoUrl);
+        }
+        setVideoUrl(null);
+        setIsPlaying(true);
+        setIsMuted(true);
+      } catch (err) {
+        console.error(err);
+        alert("Failed to remove video.");
+      }
+    }
+  };
+
+  const togglePlay = () => {
+    if (videoRef.current) {
+      if (isPlaying) {
+        videoRef.current.pause();
+      } else {
+        videoRef.current.play().catch(e => console.log("Play failed: ", e));
+      }
+      setIsPlaying(!isPlaying);
+    }
+  };
+
+  const toggleMute = () => {
+    if (videoRef.current) {
+      videoRef.current.muted = !isMuted;
+      setIsMuted(!isMuted);
+    }
   };
 
   const scrollToSection = (e, sectionId) => {
@@ -493,6 +585,52 @@ function App() {
             </div>
 
             <div className="admin-field-group">
+              <h4>Cinematic Video</h4>
+              <div className="admin-field-item">
+                <label>Subtitle</label>
+                <input type="text" value={content.videoEyebrow || ''} {...inputProps('videoEyebrow')} />
+              </div>
+              <div className="admin-field-item">
+                <label>Title</label>
+                <textarea value={content.videoTitle || ''} {...inputProps('videoTitle')} />
+              </div>
+              <div className="premium-upload-field">
+                <div className="upload-header">
+                  <label>Campaign Video</label>
+                  <span className="upload-hint">MP4 or WebM</span>
+                </div>
+                <div 
+                  id="input-videoCampaign" 
+                  className={`video-upload-preview-container ${activeField === 'videoCampaign' ? 'focused' : ''}`}
+                  onFocus={() => handleFocus('videoCampaign')} 
+                  onBlur={handleBlur} 
+                  tabIndex="0"
+                >
+                  {videoUrl ? (
+                    <video src={videoUrl} className="upload-preview-video" muted playsInline autoPlay loop />
+                  ) : (
+                    <div className="upload-preview-video-placeholder">
+                      <span>Default Video Active</span>
+                    </div>
+                  )}
+                  <label className="upload-overlay">
+                    <span>{videoUrl ? "Replace Video" : "Upload Video"}</span>
+                    <input type="file" accept="video/mp4,video/webm" onChange={handleVideoUpload} style={{display: 'none'}} />
+                  </label>
+                </div>
+                {videoUrl && (
+                  <button 
+                    type="button" 
+                    className="delete-video-btn" 
+                    onClick={handleRemoveVideo}
+                  >
+                    Remove Custom Video
+                  </button>
+                )}
+              </div>
+            </div>
+
+            <div className="admin-field-group">
               <h4>Collection Hero</h4>
               <div className="admin-field-item">
                 <label>Subtitle</label>
@@ -674,6 +812,7 @@ function App() {
             {view === 'home' ? (
               <>
                 <li><a href="#philosophy" onClick={(e) => scrollToSection(e, 'philosophy')}>Heritage</a></li>
+                <li><a href="#cinematic" onClick={(e) => scrollToSection(e, 'cinematic')}>Experience</a></li>
                 <li><a href="#collection" onClick={(e) => scrollToSection(e, 'collection')}>Collection</a></li>
                 <li><a href="#" onClick={(e) => { e.preventDefault(); navigateToView('allocation'); }} className="nav-alloc-btn">Request Allocation</a></li>
               </>
@@ -736,6 +875,53 @@ function App() {
                 <div className="reveal">
                   <p id="field-philText1" className={activeField === 'philText1' ? 'edit-highlight' : ''} {...hoverProps('philText1')}>{content.philText1}</p>
                   <p id="field-philText2" className={activeField === 'philText2' ? 'edit-highlight' : ''} {...hoverProps('philText2')}>{content.philText2}</p>
+                </div>
+              </div>
+            </section>
+
+            <section id="cinematic" className="cinematic-section section-padding">
+              <div className="container cinematic-container reveal">
+                <div className="cinematic-header text-center">
+                  <span id="field-videoEyebrow" className={`eyebrow ${activeField === 'videoEyebrow' ? 'edit-highlight' : ''}`} {...hoverProps('videoEyebrow')}>{content.videoEyebrow}</span>
+                  <h2 id="field-videoTitle" className={activeField === 'videoTitle' ? 'edit-highlight' : ''} style={{ whiteSpace: 'pre-line' }} {...hoverProps('videoTitle')}>{content.videoTitle}</h2>
+                  <div className="cinematic-divider"></div>
+                </div>
+                
+                <div id="field-videoCampaign" className={`video-player-wrapper ${activeField === 'videoCampaign' ? 'edit-highlight' : ''}`} {...hoverProps('videoCampaign')}>
+                  <video
+                    ref={videoRef}
+                    key={videoUrl || 'default'}
+                    src={videoUrl || DEFAULT_VIDEO_URL}
+                    className="cinematic-video"
+                    loop
+                    muted={isMuted}
+                    autoPlay
+                    playsInline
+                  />
+                  <div className="video-controls-overlay">
+                    <button className="video-control-btn play-pause-btn" onClick={(e) => { e.stopPropagation(); togglePlay(); }}>
+                      {isPlaying ? (
+                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" width="18" height="18">
+                          <path d="M6 19h4V5H6v14zm8-14v14h4V5h-4z"/>
+                        </svg>
+                      ) : (
+                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" width="18" height="18">
+                          <path d="M8 5v14l11-7z"/>
+                        </svg>
+                      )}
+                    </button>
+                    <button className="video-control-btn mute-btn" onClick={(e) => { e.stopPropagation(); toggleMute(); }}>
+                      {isMuted ? (
+                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" width="18" height="18">
+                          <path d="M16.5 12c0-1.77-1.02-3.29-2.5-4.03v8.05c1.48-.73 2.5-2.25 2.5-4.02zM12 4L9.91 6.09 12 8.18V4zm6.5 8c0 2.94-1.81 5.46-4.38 6.47l1.09 1.09C18.44 18.23 20.5 15.36 20.5 12c0-4.28-3.22-7.81-7.38-8.5v2.02c3.04.67 5.38 3.39 5.38 6.48zM4.27 3L3 4.27 7.73 9H3v6h4l5 5v-6.73l4.25 4.25c-.67.52-1.42.93-2.25 1.18v2.03a11.59 11.59 0 0 0 3.66-1.72l2.32 2.3 1.27-1.27L4.27 3z"/>
+                        </svg>
+                      ) : (
+                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" width="18" height="18">
+                          <path d="M3 9v6h4l5 5V4L7 9H3zm13.5 3c0-1.77-1.02-3.29-2.5-4.03v8.05c1.48-.73 2.5-2.25 2.5-4.02zM14 3.23v2.06c2.89.86 5 3.54 5 6.71s-2.11 5.85-5 6.71v2.06c4.01-.91 7-4.49 7-8.77s-2.99-7.86-7-8.77z"/>
+                        </svg>
+                      )}
+                    </button>
+                  </div>
                 </div>
               </div>
             </section>

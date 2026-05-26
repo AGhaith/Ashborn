@@ -1628,3 +1628,188 @@ a:hover {
   opacity: 1;
   transform: translateY(0);
 }
+
+/* Cinematic Video Section Styles */
+.cinematic-section {
+  background-color: var(--color-bg);
+  border-top: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.cinematic-container {
+  max-width: 1200px;
+  margin: 0 auto;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.cinematic-header {
+  margin-bottom: 4rem;
+}
+
+.cinematic-header h2 {
+  font-size: 3.5rem;
+  line-height: 1.1;
+  margin-top: 0.5rem;
+}
+
+.cinematic-divider {
+  width: 60px;
+  height: 1px;
+  background: var(--color-accent);
+  margin: 2.5rem auto 0 auto;
+}
+
+.video-player-wrapper {
+  position: relative;
+  width: 100%;
+  aspect-ratio: 16 / 9;
+  max-height: 600px;
+  background: #000;
+  border-radius: 4px;
+  overflow: hidden;
+  box-shadow: 0 30px 60px rgba(0, 0, 0, 0.6);
+  border: 1px solid rgba(255, 255, 255, 0.05);
+  transition: border-color 0.4s ease, box-shadow 0.4s ease;
+}
+
+.main-content.admin-active .video-player-wrapper {
+  cursor: pointer;
+}
+
+.video-player-wrapper:hover {
+  border-color: rgba(197, 168, 128, 0.3);
+  box-shadow: 0 30px 60px rgba(0, 0, 0, 0.8), 0 0 40px rgba(197, 168, 128, 0.05);
+}
+
+.cinematic-video {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+/* Floating custom video controls overlay */
+.video-controls-overlay {
+  position: absolute;
+  bottom: 2rem;
+  right: 2rem;
+  display: flex;
+  gap: 1rem;
+  opacity: 0;
+  transform: translateY(10px);
+  transition: opacity 0.4s cubic-bezier(0.16, 1, 0.3, 1), transform 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+  z-index: 5;
+}
+
+.video-player-wrapper:hover .video-controls-overlay {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+.video-control-btn {
+  background: rgba(12, 13, 10, 0.7);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 50%;
+  width: 48px;
+  height: 48px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--color-fg);
+  cursor: pointer;
+  transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.video-control-btn:hover {
+  border-color: var(--color-accent);
+  color: var(--color-accent);
+  background: rgba(12, 13, 10, 0.9);
+  transform: scale(1.08);
+}
+
+/* Admin Panel Video Elements */
+.video-upload-preview-container {
+  position: relative;
+  width: 100%;
+  height: 150px;
+  background: rgba(0, 0, 0, 0.4);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 4px;
+  overflow: hidden;
+  cursor: pointer;
+  transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.video-upload-preview-container:focus,
+.video-upload-preview-container.focused {
+  outline: none;
+  border-color: var(--color-accent);
+  box-shadow: 0 0 0 1px var(--color-accent);
+}
+
+.upload-preview-video {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  opacity: 0.4;
+  transition: opacity 0.3s;
+}
+
+.video-upload-preview-container:hover .upload-preview-video {
+  opacity: 0.15;
+}
+
+.upload-preview-video-placeholder {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.75rem;
+  color: var(--color-fg-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  opacity: 0.6;
+}
+
+.video-upload-preview-container:hover .upload-overlay {
+  opacity: 1;
+}
+
+.delete-video-btn {
+  margin-top: 0.6rem;
+  width: 100%;
+  background: transparent;
+  border: 1px solid rgba(255, 77, 77, 0.25);
+  border-radius: 3px;
+  color: #ff4d4d;
+  font-size: 0.65rem;
+  padding: 0.5rem;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.delete-video-btn:hover {
+  border-color: #ff4d4d;
+  background: rgba(255, 77, 77, 0.08);
+}
+
+@media (max-width: 768px) {
+  .cinematic-header h2 {
+    font-size: 2.2rem;
+  }
+  .video-controls-overlay {
+    opacity: 1;
+    transform: translateY(0);
+    bottom: 1rem;
+    right: 1rem;
+  }
+  .video-control-btn {
+    width: 40px;
+    height: 40px;
+  }
+}
