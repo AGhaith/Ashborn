@@ -681,7 +681,7 @@ function App() {
               <li><a href="#" onClick={(e) => { e.preventDefault(); navigateToView('home'); resetAllocationForm(); }}>← Back to Heritage</a></li>
             )}
             <li>
-              <a href="https://www.instagram.com/ashborntobacco/" target="_blank" rel="noopener noreferrer" aria-label="Instagram" className="nav-instagram">
+              <a href="https://www.instagram.com/ashborntobacco_official/" target="_blank" rel="noopener noreferrer" aria-label="Instagram" className="nav-instagram">
                 <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
                   <rect x="2" y="2" width="20" height="20" rx="5" ry="5"></rect>
                   <path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"></path>
@@ -694,7 +694,7 @@ function App() {
             {view === 'allocation' && (
               <a href="#" onClick={(e) => { e.preventDefault(); navigateToView('home'); resetAllocationForm(); }} className="mobile-back-link">Back</a>
             )}
-            <a href="https://www.instagram.com/ashborntobacco/" target="_blank" rel="noopener noreferrer" aria-label="Instagram" className="mobile-nav-instagram">
+            <a href="https://www.instagram.com/ashborntobacco_official/" target="_blank" rel="noopener noreferrer" aria-label="Instagram" className="mobile-nav-instagram">
               <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
                 <rect x="2" y="2" width="20" height="20" rx="5" ry="5"></rect>
                 <path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"></path>
@@ -927,13 +927,13 @@ function App() {
           <div className="footer-brand">ASHBORN</div>
           <div className="footer-social-and-legal">
             <div className="footer-social">
-              <a href="https://www.instagram.com/ashborntobacco/" target="_blank" rel="noopener noreferrer" aria-label="Instagram" className="instagram-footer-link">
+              <a href="https://www.instagram.com/ashborntobacco_official/" target="_blank" rel="noopener noreferrer" aria-label="Instagram" className="instagram-footer-link">
                 <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
                   <rect x="2" y="2" width="20" height="20" rx="5" ry="5"></rect>
                   <path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"></path>
                   <line x1="17.5" y1="6.5" x2="17.51" y2="6.5"></line>
                 </svg>
-                <span>@ashborntobacco</span>
+                <span>@ashborntobacco_official</span>
               </a>
             </div>
             <div className="footer-legal">&copy; 2026 Ashborn. All rights reserved.</div>
